@@ -1,11 +1,22 @@
-import { useMemo } from 'react';
+import { useCallback, useState } from 'react';
 import { MOCK_PARTICIPANTS } from '@/contexts/game/adapters/mock-participants';
+import { clearVotes } from '@/contexts/game/domain/participant';
 import type { Participant } from '@/contexts/game/domain/participant';
 
-// Lista de participantes en la mesa. Hoy es un mock; mañana vendría de un repositorio real.
-export function useParticipantsVm(source: readonly Participant[] = MOCK_PARTICIPANTS): {
+interface ParticipantsVm {
   participants: readonly Participant[];
-} {
-  const participants = useMemo(() => source, [source]);
-  return { participants };
+  resetVotes: () => void;
+}
+
+// Lista de participantes en la mesa. Hoy parte de un mock; mañana vendría de un repositorio real.
+export function useParticipantsVm(
+  initial: readonly Participant[] = MOCK_PARTICIPANTS,
+): ParticipantsVm {
+  const [participants, setParticipants] = useState<readonly Participant[]>(initial);
+
+  const resetVotes = useCallback(() => {
+    setParticipants((current) => clearVotes(current));
+  }, []);
+
+  return { participants, resetVotes };
 }

@@ -21,13 +21,21 @@ describe('PokerTable', () => {
     });
   });
 
-  it('should mark a voted participant card', () => {
+  it('should mark a voted participant card without showing the value', () => {
     // Arrange & Act
     render(<PokerTable participants={PARTICIPANTS} />);
 
     // Assert
     expect(screen.getByRole('img', { name: 'Oscar ya eligió carta' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'David aún no elige carta' })).toBeInTheDocument();
+  });
+
+  it('should show the votes when revealed', () => {
+    // Arrange & Act
+    render(<PokerTable participants={PARTICIPANTS} revealed />);
+
+    // Assert
+    expect(screen.getByRole('img', { name: 'Oscar eligió 5' })).toBeInTheDocument();
   });
 
   it('should render the current seat between the bottom participants', () => {

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGameVm } from '@/contexts/game/hooks/useGameVm';
@@ -129,5 +129,41 @@ describe('GamePage', () => {
 
     // Assert
     expect(screen.queryByRole('button', { name: 'Revelar cartas' })).not.toBeInTheDocument();
+  });
+
+  it('should go from counting to results after revealing (host)', () => {
+    // Arrange
+    vi.useFakeTimers();
+    try {
+      mockUser({ ...PLAYER, role: 'spectator' });
+      renderAtGame('sprint-32');
+
+      // Act: revelar -> contando votos
+      act(() => {
+        screen.getByRole('button', { name: 'Revelar cartas' }).click();
+      });
+
+      // Assert
+      expect(screen.getByText('Contando votos')).toBeInTheDocument();
+
+      // Act: termina la animación
+      act(() => vi.advanceTimersByTime(1500));
+
+      // Assert: se muestran los resultados (el valor exacto del promedio se prueba en vote-results).
+      expect(screen.getByText('Promedio:')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Nueva votación' })).toBeInTheDocument();
+
+      // Act: nueva votación limpia los votos y vuelve a la fase de votación
+      act(() => {
+        screen.getByRole('button', { name: 'Nueva votación' }).click();
+      });
+
+      // Assert: ya no hay resultados y, al quedar los votos en null, no se puede revelar
+      expect(screen.queryByText('Promedio:')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Revelar cartas' })).not.toBeInTheDocument();
+      expect(screen.getByRole('img', { name: 'Oscar aún no elige carta' })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

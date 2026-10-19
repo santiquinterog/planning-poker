@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { ParticipantCard } from '@/contexts/game/components/ParticipantCard/ParticipantCard';
-import { hasVoted } from '@/contexts/game/domain/participant';
 import type { Participant } from '@/contexts/game/domain/participant';
 
 interface PokerTableProps {
   participants: readonly Participant[];
+  revealed?: boolean;
   currentSeat?: ReactNode;
   centerSlot?: ReactNode;
 }
@@ -15,29 +15,30 @@ interface PokerTableProps {
 const TOP_COUNT = 3;
 const SIDE_COUNT = 2;
 
-export function PokerTable({ participants, currentSeat, centerSlot }: PokerTableProps) {
+export function PokerTable({ participants, revealed, currentSeat, centerSlot }: PokerTableProps) {
   const top = participants.slice(0, TOP_COUNT);
   const sides = participants.slice(TOP_COUNT, TOP_COUNT + SIDE_COUNT);
   const bottom = participants.slice(TOP_COUNT + SIDE_COUNT);
   const [leftSeat, rightSeat] = sides;
 
-  // El usuario actual va en la mitad de la fila inferior.
   const middle = Math.ceil(bottom.length / 2);
   const bottomLeft = bottom.slice(0, middle);
   const bottomRight = bottom.slice(middle);
+
+  const renderCard = (participant: Participant) => (
+    <ParticipantCard name={participant.name} vote={participant.vote} revealed={revealed} />
+  );
 
   return (
     <div className="flex w-full max-w-5xl flex-col items-center gap-6">
       <ul className="flex justify-center gap-10 md:gap-16">
         {top.map((participant) => (
-          <li key={participant.id}>
-            <ParticipantCard name={participant.name} hasVoted={hasVoted(participant)} />
-          </li>
+          <li key={participant.id}>{renderCard(participant)}</li>
         ))}
       </ul>
 
       <div className="flex w-full items-center justify-center gap-4 md:gap-8">
-        {leftSeat && <ParticipantCard name={leftSeat.name} hasVoted={hasVoted(leftSeat)} />}
+        {leftSeat && renderCard(leftSeat)}
 
         <div className="relative aspect-[603/345] w-full max-w-[640px] shrink">
           <div className="absolute inset-0 rounded-[172px] border-2 border-primary-purple-500 shadow-ring" />
@@ -48,20 +49,16 @@ export function PokerTable({ participants, currentSeat, centerSlot }: PokerTable
           )}
         </div>
 
-        {rightSeat && <ParticipantCard name={rightSeat.name} hasVoted={hasVoted(rightSeat)} />}
+        {rightSeat && renderCard(rightSeat)}
       </div>
 
       <ul className="flex items-start justify-center gap-10 md:gap-16">
         {bottomLeft.map((participant) => (
-          <li key={participant.id}>
-            <ParticipantCard name={participant.name} hasVoted={hasVoted(participant)} />
-          </li>
+          <li key={participant.id}>{renderCard(participant)}</li>
         ))}
         {currentSeat && <li>{currentSeat}</li>}
         {bottomRight.map((participant) => (
-          <li key={participant.id}>
-            <ParticipantCard name={participant.name} hasVoted={hasVoted(participant)} />
-          </li>
+          <li key={participant.id}>{renderCard(participant)}</li>
         ))}
       </ul>
     </div>

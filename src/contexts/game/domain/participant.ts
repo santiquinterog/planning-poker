@@ -10,3 +10,8 @@ export interface Participant {
 export function hasVoted(participant: Participant): boolean {
   return participant.vote !== null;
 }
+
+// Devuelve una lista nueva con todos los votos en null (nueva ronda).
+export function clearVotes(participants: readonly Participant[]): Participant[] {
+  return participants.map((participant) => ({ ...participant, vote: null }));
+}
