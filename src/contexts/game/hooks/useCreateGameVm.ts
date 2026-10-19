@@ -31,7 +31,7 @@ export function useCreateGameVm(service: Pick<GameService, 'createGame'> = gameS
     }
     try {
       const game = service.createGame(validation.value);
-      navigate(ROUTES.game(game.id));
+      navigate(ROUTES.game(game.slug));
     } catch {
       setSubmitError(CREATE_GAME_ERROR);
     }

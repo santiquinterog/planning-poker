@@ -1,33 +1,34 @@
-import { Link, useParams } from 'react-router';
+import { Navigate, useParams } from 'react-router';
+import { CardList } from '@/contexts/game/components/CardList/CardList';
+import { GameHeader } from '@/contexts/game/components/GameHeader/GameHeader';
+import { PlayerSeat } from '@/contexts/game/components/PlayerSeat/PlayerSeat';
+import { PokerTable } from '@/contexts/game/components/PokerTable/PokerTable';
 import { useGameVm } from '@/contexts/game/hooks/useGameVm';
+import { CreateAdminModal } from '@/contexts/user/components/CreateAdminModal/CreateAdminModal';
+import { canInteractWithCards } from '@/contexts/user/domain/user';
+import { useCurrentUserVm } from '@/contexts/user/hooks/useCurrentUserVm';
 import { ROUTES } from '@/config/routes';
-import { PageHeader } from '@/components/organisms/PageHeader/PageHeader';
 import { PageLayout } from '@/components/templates/PageLayout/PageLayout';
 
-// Placeholder: la mesa de juego se implementa en una HU posterior.
 export function GamePage() {
-  const { gameId } = useParams();
-  const { game } = useGameVm(gameId);
+  const { slug } = useParams();
+  const { game } = useGameVm(slug);
+  const { user, refresh } = useCurrentUserVm(slug ?? '');
 
-  if (!game) {
-    return (
-      <PageLayout header={<PageHeader title="Partida no encontrada" />}>
-        <div className="flex flex-col items-center gap-4 text-center">
-          <p className="text-base text-white">No encontramos esta partida.</p>
-          <Link
-            to={ROUTES.createGame}
-            className="inline-flex min-h-11 items-center rounded-full px-6 text-h6 font-semibold text-gray-50 underline underline-offset-4"
-          >
-            Crear una partida
-          </Link>
-        </div>
-      </PageLayout>
-    );
+  if (!slug || !game) {
+    return <Navigate to={ROUTES.createGame} replace />;
   }
 
+  // Admin y jugador ven las cartas; solo el jugador puede interactuar (como en un sprint planning).
+  const interactive = user ? canInteractWithCards(user.role) : false;
+
   return (
-    <PageLayout header={<PageHeader title={game.name} />}>
-      <p className="text-center text-base text-white">Partida creada. Aquí irá la mesa de juego.</p>
+    <PageLayout header={<GameHeader gameName={game.name} currentUserName={user?.name ?? null} />}>
+      <div className="flex w-full flex-col items-center gap-12">
+        <PokerTable seat={user ? <PlayerSeat name={user.name} /> : undefined} />
+        {user && <CardList interactive={interactive} />}
+      </div>
+      {!user && <CreateAdminModal gameSlug={slug} onCreated={refresh} />}
     </PageLayout>
   );
 }

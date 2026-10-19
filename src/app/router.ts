@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
         },
       },
       {
-        path: 'partida/:gameId',
+        path: 'partida/:slug',
         lazy: async () => {
           const { GamePage } = await import('@/contexts/game/pages/GamePage/GamePage');
           return { Component: GamePage };

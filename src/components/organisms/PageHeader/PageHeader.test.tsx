@@ -11,11 +11,27 @@ describe('PageHeader', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Crear partida' })).toBeInTheDocument();
   });
 
-  it('should render the logo as decorative next to the title', () => {
+  it('should render the logo as decorative', () => {
     // Arrange & Act
     render(<PageHeader title="Crear partida" />);
 
     // Assert
     expect(screen.getByRole('banner')).toContainElement(screen.getByRole('presentation'));
+  });
+
+  it('should render the actions passed to it', () => {
+    // Arrange & Act
+    render(<PageHeader title="Sprint 32" actions={<button>Invitar jugadores</button>} />);
+
+    // Assert
+    expect(screen.getByRole('button', { name: 'Invitar jugadores' })).toBeInTheDocument();
+  });
+
+  it('should not render a heading when no title is given', () => {
+    // Arrange & Act
+    render(<PageHeader />);
+
+    // Assert
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 });

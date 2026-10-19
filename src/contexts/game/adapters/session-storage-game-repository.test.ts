@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { SessionStorageGameRepository } from '@/contexts/game/adapters/session-storage-game-repository';
 import type { Game } from '@/contexts/game/domain/game';
 
-const GAME: Game = { id: 'game-1', name: 'Sprint 32', createdAt: '2026-10-16T10:00:00.000Z' };
+const GAME: Game = { slug: 'sprint-32', name: 'Sprint 32', createdAt: '2026-10-16T10:00:00.000Z' };
 
 function createStorageMock(initial: Record<string, string> = {}) {
   const entries = new Map(Object.entries(initial));
@@ -15,13 +15,13 @@ function createStorageMock(initial: Record<string, string> = {}) {
 }
 
 describe('SessionStorageGameRepository', () => {
-  it('should return the saved game when looking it up by id', () => {
+  it('should return the saved game when looking it up by slug', () => {
     // Arrange
     const repository = new SessionStorageGameRepository(createStorageMock());
 
     // Act
     repository.save(GAME);
-    const found = repository.findById(GAME.id);
+    const found = repository.findBySlug(GAME.slug);
 
     // Assert
     expect(found).toEqual(GAME);
@@ -32,21 +32,21 @@ describe('SessionStorageGameRepository', () => {
     const repository = new SessionStorageGameRepository(createStorageMock());
 
     // Act
-    const found = repository.findById('missing');
+    const found = repository.findBySlug('missing');
 
     // Assert
     expect(found).toBeNull();
   });
 
-  it.each(['not-json', JSON.stringify({ id: 'game-1' })])(
+  it.each(['not-json', JSON.stringify({ slug: 'sprint-32' })])(
     'should return null when the stored data is corrupt (%s)',
     (raw) => {
       // Arrange
-      const storage = createStorageMock({ 'planning-poker:game:game-1': raw });
+      const storage = createStorageMock({ 'planning-poker:game:sprint-32': raw });
       const repository = new SessionStorageGameRepository(storage);
 
       // Act
-      const found = repository.findById('game-1');
+      const found = repository.findBySlug('sprint-32');
 
       // Assert
       expect(found).toBeNull();

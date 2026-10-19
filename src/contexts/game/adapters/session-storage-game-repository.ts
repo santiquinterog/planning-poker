@@ -13,19 +13,19 @@ export class SessionStorageGameRepository implements GameRepository {
   }
 
   save(game: Game): void {
-    this.storage.setItem(this.keyFor(game.id), JSON.stringify(game));
+    this.storage.setItem(this.keyFor(game.slug), JSON.stringify(game));
   }
 
-  findById(gameId: string): Game | null {
-    const raw = this.storage.getItem(this.keyFor(gameId));
+  findBySlug(slug: string): Game | null {
+    const raw = this.storage.getItem(this.keyFor(slug));
     if (raw === null) {
       return null;
     }
     return this.parseGame(raw);
   }
 
-  private keyFor(gameId: string): string {
-    return `${KEY_PREFIX}${gameId}`;
+  private keyFor(slug: string): string {
+    return `${KEY_PREFIX}${slug}`;
   }
 
   private parseGame(raw: string): Game | null {

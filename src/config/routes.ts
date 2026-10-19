@@ -1,4 +1,4 @@
 export const ROUTES = {
   createGame: '/',
-  game: (gameId: string) => `/partida/${encodeURIComponent(gameId)}`,
+  game: (slug: string) => `/partida/${encodeURIComponent(slug)}`,
 } as const;

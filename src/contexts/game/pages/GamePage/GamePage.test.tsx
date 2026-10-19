@@ -2,60 +2,100 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGameVm } from '@/contexts/game/hooks/useGameVm';
+import { useCurrentUserVm } from '@/contexts/user/hooks/useCurrentUserVm';
 import { GamePage } from '@/contexts/game/pages/GamePage/GamePage';
+import type { User } from '@/contexts/user/domain/user';
 
 vi.mock('@/contexts/game/hooks/useGameVm', () => ({ useGameVm: vi.fn() }));
+vi.mock('@/contexts/user/hooks/useCurrentUserVm', () => ({ useCurrentUserVm: vi.fn() }));
 
-function renderAtGame(gameId: string) {
+const GAME = { slug: 'sprint-32', name: 'Sprint 32', createdAt: '2026-10-16T10:00:00.000Z' };
+
+const PLAYER: User = {
+  id: 'u1',
+  gameSlug: 'sprint-32',
+  name: 'Luisa',
+  role: 'player',
+  createdAt: '2026-10-16T10:00:00.000Z',
+};
+
+function renderAtGame(slug: string) {
   render(
-    <MemoryRouter initialEntries={[`/partida/${gameId}`]}>
+    <MemoryRouter initialEntries={[`/partida/${slug}`]}>
       <Routes>
-        <Route path="/partida/:gameId" element={<GamePage />} />
+        <Route path="/partida/:slug" element={<GamePage />} />
       </Routes>
     </MemoryRouter>,
   );
 }
 
+function mockUser(user: User | null) {
+  vi.mocked(useCurrentUserVm).mockReturnValue({ user, refresh: vi.fn() });
+}
+
 describe('GamePage', () => {
   beforeEach(() => {
     vi.mocked(useGameVm).mockReset();
+    vi.mocked(useCurrentUserVm).mockReset();
+    vi.mocked(useGameVm).mockReturnValue({ game: GAME });
   });
 
-  it('should request the game using the id from the URL', () => {
+  it('should request the game using the slug from the URL', () => {
     // Arrange
-    vi.mocked(useGameVm).mockReturnValue({ game: null });
+    mockUser(PLAYER);
 
     // Act
-    renderAtGame('game-1');
+    renderAtGame('sprint-32');
 
     // Assert
-    expect(useGameVm).toHaveBeenCalledWith('game-1');
+    expect(useGameVm).toHaveBeenCalledWith('sprint-32');
   });
 
-  it('should show the game name as the title when the game exists', () => {
+  it('should show the admin creation modal when there is no user yet', () => {
     // Arrange
-    vi.mocked(useGameVm).mockReturnValue({
-      game: { id: 'game-1', name: 'Sprint 32', createdAt: '2026-10-16T10:00:00.000Z' },
-    });
+    mockUser(null);
 
     // Act
-    renderAtGame('game-1');
+    renderAtGame('sprint-32');
+
+    // Assert
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByLabelText('Tu nombre')).toBeInTheDocument();
+  });
+
+  it('should show the table and card list once a user exists', () => {
+    // Arrange
+    mockUser(PLAYER);
+
+    // Act
+    renderAtGame('sprint-32');
 
     // Assert
     expect(screen.getByRole('heading', { level: 1, name: 'Sprint 32' })).toBeInTheDocument();
+    expect(screen.getByText('Elige una carta 👇')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('should offer a link to create a game when the game does not exist', () => {
+  it('should let a player interact with the cards', () => {
     // Arrange
-    vi.mocked(useGameVm).mockReturnValue({ game: null });
+    mockUser(PLAYER);
 
     // Act
-    renderAtGame('missing');
+    renderAtGame('sprint-32');
 
     // Assert
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Partida no encontrada' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Crear una partida' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('button', { name: '5' })).toBeEnabled();
+  });
+
+  it('should show the cards to a spectator but keep them disabled', () => {
+    // Arrange
+    mockUser({ ...PLAYER, role: 'spectator' });
+
+    // Act
+    renderAtGame('sprint-32');
+
+    // Assert
+    expect(screen.getByText('Elige una carta 👇')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '5' })).toBeDisabled();
   });
 });
