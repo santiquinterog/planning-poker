@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router';
 import { useGameVm } from '@/contexts/game/hooks/useGameVm';
-import { ROUTES } from '@/shared/routes';
-import { PageHeader } from '@/shared/ui/organisms/PageHeader';
-import { PageLayout } from '@/shared/ui/templates/PageLayout';
+import { ROUTES } from '@/config/routes';
+import { PageHeader } from '@/components/organisms/PageHeader/PageHeader';
+import { PageLayout } from '@/components/templates/PageLayout/PageLayout';
 
 // Placeholder: la mesa de juego se implementa en una HU posterior.
 export function GamePage() {

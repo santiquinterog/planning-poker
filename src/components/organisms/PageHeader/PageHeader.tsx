@@ -1,4 +1,4 @@
-import { Logo } from '@/shared/ui/atoms/Logo';
+import { Logo } from '@/components/atoms/Logo/Logo';
 
 interface PageHeaderProps {
   title: string;

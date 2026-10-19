@@ -1,5 +1,5 @@
 import pokerChip from '@/assets/poker-chip.svg';
-import { cn } from '@/shared/lib/cn';
+import { cn } from '@/lib/cn';
 
 interface LogoProps {
   alt?: string;

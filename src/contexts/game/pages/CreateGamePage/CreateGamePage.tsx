@@ -1,7 +1,7 @@
-import { CreateGameForm } from '@/contexts/game/components/CreateGameForm';
+import { CreateGameForm } from '@/contexts/game/components/CreateGameForm/CreateGameForm';
 import { useCreateGameVm } from '@/contexts/game/hooks/useCreateGameVm';
-import { PageHeader } from '@/shared/ui/organisms/PageHeader';
-import { PageLayout } from '@/shared/ui/templates/PageLayout';
+import { PageHeader } from '@/components/organisms/PageHeader/PageHeader';
+import { PageLayout } from '@/components/templates/PageLayout/PageLayout';
 
 export function CreateGamePage() {
   const vm = useCreateGameVm();

@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { Input, type InputProps } from '@/shared/ui/atoms/Input';
+import { Input, type InputProps } from '@/components/atoms/Input/Input';
 
 interface TextFieldProps extends Omit<InputProps, 'id'> {
   label: string;

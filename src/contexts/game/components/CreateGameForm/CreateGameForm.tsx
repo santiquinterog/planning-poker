@@ -1,6 +1,6 @@
 import { memo, type FormEvent } from 'react';
-import { Button } from '@/shared/ui/atoms/Button';
-import { TextField } from '@/shared/ui/molecules/TextField';
+import { Button } from '@/components/atoms/Button/Button';
+import { TextField } from '@/components/molecules/TextField/TextField';
 
 interface CreateGameFormProps {
   name: string;

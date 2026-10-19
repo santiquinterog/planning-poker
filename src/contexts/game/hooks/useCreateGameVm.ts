@@ -4,7 +4,7 @@ import { getVisibleNameError } from '@/contexts/game/create-game-helpers';
 import { validateGameName } from '@/contexts/game/domain/game-name-validation';
 import type { GameService } from '@/contexts/game/services/game-service';
 import { gameService } from '@/contexts/game/services/game-service-instance';
-import { ROUTES } from '@/shared/routes';
+import { ROUTES } from '@/config/routes';
 
 export const CREATE_GAME_ERROR = 'No pudimos crear la partida. Intenta de nuevo.';
 
