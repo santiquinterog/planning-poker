@@ -4,14 +4,15 @@ interface ModalProps {
   title: string;
   isOpen: boolean;
   children: ReactNode;
+  // Si se pasa, la modal se puede cerrar (Escape y click fuera). Si se omite, queda bloqueada.
+  onClose?: () => void;
 }
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// Modal sin cierre: permanece abierta hasta que el flujo la desmonta (no Escape, no click fuera).
 // Atrapa el foco y bloquea el scroll del fondo mientras está abierta.
-export function Modal({ title, isOpen, children }: ModalProps) {
+export function Modal({ title, isOpen, children, onClose }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,6 +23,10 @@ export function Modal({ title, isOpen, children }: ModalProps) {
     panel?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && onClose) {
+        onClose();
+        return;
+      }
       if (event.key !== 'Tab' || !panel) {
         return;
       }
@@ -47,7 +52,7 @@ export function Modal({ title, isOpen, children }: ModalProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) {
     return null;
@@ -55,7 +60,14 @@ export function Modal({ title, isOpen, children }: ModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-surface-900/70 backdrop-blur-md" aria-hidden="true" />
+      <button
+        type="button"
+        aria-hidden="true"
+        tabIndex={-1}
+        disabled={!onClose}
+        onClick={onClose}
+        className="absolute inset-0 cursor-default bg-surface-900/70 backdrop-blur-md"
+      />
       <div
         ref={panelRef}
         role="dialog"

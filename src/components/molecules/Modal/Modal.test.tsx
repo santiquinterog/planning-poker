@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Modal } from '@/components/molecules/Modal/Modal';
 
 describe('Modal', () => {
@@ -43,5 +43,38 @@ describe('Modal', () => {
 
     // Assert
     expect(screen.getByRole('button', { name: 'Único' })).toHaveFocus();
+  });
+
+  it('should close with Escape when onClose is provided', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(
+      <Modal title="Invitar jugadores" isOpen onClose={onClose}>
+        <button>Dentro</button>
+      </Modal>,
+    );
+
+    // Act
+    await user.keyboard('{Escape}');
+
+    // Assert
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not close with Escape when onClose is omitted', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(
+      <Modal title="Crear usuario" isOpen>
+        <button>Dentro</button>
+      </Modal>,
+    );
+
+    // Act
+    await user.keyboard('{Escape}');
+
+    // Assert
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });

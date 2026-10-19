@@ -87,7 +87,7 @@ describe('GamePage', () => {
     expect(screen.getByRole('button', { name: '5' })).toBeEnabled();
   });
 
-  it('should show the cards to a spectator but keep them disabled', () => {
+  it('should not show the cards to a spectator', () => {
     // Arrange
     mockUser({ ...PLAYER, role: 'spectator' });
 
@@ -95,7 +95,39 @@ describe('GamePage', () => {
     renderAtGame('sprint-32');
 
     // Assert
-    expect(screen.getByText('Elige una carta 👇')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '5' })).toBeDisabled();
+    expect(screen.queryByText('Elige una carta 👇')).not.toBeInTheDocument();
+  });
+
+  it('should show the participants around the table', () => {
+    // Arrange
+    mockUser(PLAYER);
+
+    // Act
+    renderAtGame('sprint-32');
+
+    // Assert
+    expect(screen.getByText('Oscar')).toBeInTheDocument();
+  });
+
+  it('should show the reveal button only to the spectator (host)', () => {
+    // Arrange
+    mockUser({ ...PLAYER, role: 'spectator' });
+
+    // Act
+    renderAtGame('sprint-32');
+
+    // Assert
+    expect(screen.getByRole('button', { name: 'Revelar cartas' })).toBeInTheDocument();
+  });
+
+  it('should not show the reveal button to a player', () => {
+    // Arrange
+    mockUser(PLAYER);
+
+    // Act
+    renderAtGame('sprint-32');
+
+    // Assert
+    expect(screen.queryByRole('button', { name: 'Revelar cartas' })).not.toBeInTheDocument();
   });
 });
